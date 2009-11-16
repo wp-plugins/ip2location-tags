@@ -17,13 +17,17 @@ Here is an example to display visitor country name:
 You are coming from [ip2loc:country].
 
 
+
 To customize your post content, display following text only for visitor from United States and Japan:
 
 [ip2loc:us;jp]Only visitor from United States and Japan can view this[/ip2loc]
 
 
+
 To hide a text from visitor from Nigeria:
+
 [ip2loc:-ng]Visitors from Nigeria can't see this text.[/ip2loc]
+
 
 
 == Installation ==
