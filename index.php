@@ -5,7 +5,7 @@ Plugin Name: IP2Location Tag
 Plugin URI: http://www.ip2location.com/developer.aspx
 Description: Enable you to use IP2Location tags to customize your post content by country.
 Version: 1.00
-Author: Sei Kan
+Author: IP2Location
 Author URI: http://www.ip2location.com
 */
 
