@@ -70,7 +70,7 @@ class IP2LocationTag{
 	}
 
 	function getIP(){
-		/*$ipAddress[] = $_SERVER['REMOTE_ADDR'];
+		$ipAddress[] = $_SERVER['REMOTE_ADDR'];
 
 		if(isset($_SERVER['HTTP_CLIENT_IP'])) $ip = trim($_SERVER['HTTP_CLIENT_IP']);
 		
@@ -91,8 +91,7 @@ class IP2LocationTag{
 				return $ipAddress[$i];
 			}
 			return $ipAddress[0];
-		}*/
-		return '60.54.83.245';
+		}
 	}
 
 	function parseTag($string, $start, $end) {
