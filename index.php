@@ -4,7 +4,7 @@
 Plugin Name: IP2Location Tag
 Plugin URI: http://www.ip2location.com/developer.aspx
 Description: Enable you to use IP2Location tags to customize your post content by country.
-Version: 1.00
+Version: 1.01
 Author: IP2Location
 Author URI: http://www.ip2location.com
 */
@@ -73,7 +73,7 @@ class IP2LocationTag{
 		$ipAddress[] = $_SERVER['REMOTE_ADDR'];
 
 		if(isset($_SERVER['HTTP_CLIENT_IP'])) $ip = trim($_SERVER['HTTP_CLIENT_IP']);
-		
+
 		if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
 			$ip = trim($_SERVER['HTTP_X_FORWARDED_FOR']);
 
@@ -98,7 +98,7 @@ class IP2LocationTag{
 		$string = ' ' . $string;
 		$ini = strpos($string, $start);
 		if($ini == 0) return '';
-		$ini += strlen($start);   
+		$ini += strlen($start);
 		$len = strpos($string, $end, $ini) - $ini;
 		return substr($string, $ini, $len);
 	}
@@ -459,13 +459,13 @@ class IP2LocationTag{
 		header("Location: edit.php?page=ip2location-content");
 		exit();
 	}
-	
+
 	function init() {
 		add_action('wp', array(&$this, 'getLocation'), 101);
 		add_action('admin_menu', array(&$this, 'admin_page'));
 		add_filter('the_content', array(&$this, 'parse'));
 	}
-	
+
 }
 
 //init class

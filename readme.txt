@@ -3,8 +3,8 @@ Contributors: IP2Location
 Donate link: http://www.ip2location.com
 Tags: targeted content, geolocation
 Requires at least: 2.0
-Tested up to: 2.8.6
-Stable tag: 1.00
+Tested up to: 3.4.1
+Stable tag: 1.01
 
 Description: Customize post content by visitor's location.
 
