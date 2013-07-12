@@ -3,30 +3,44 @@ Contributors: IP2Location
 Donate link: http://www.ip2location.com
 Tags: targeted content, geolocation
 Requires at least: 2.0
-Tested up to: 3.4.1
-Stable tag: 1.01
+Tested up to: 3.5.2
+Stable tag: 2.0
 
-Description: Customize post content by visitor's location.
+Description: Customize blog content by visitor's location.
 
 == Description ==
 
-Use the [ip2loc][/ip2loc] tags to dislay geolocation information of your visitors. You can use this plugin to block/display customized post content as well.
+Use the special tags to display geolocation information of your visitors. You also can use this plugin to hide/show post content as well.
 
-Here is an example to display visitor country name:
+Here is an example to display visitor origin country name.
 
-You are coming from [ip2loc:country].
+Example:
+You are coming from {ip:countryName}.
 
-
-
-To customize your post content, display following text only for visitor from United States and Japan:
-
-[ip2loc:us;jp]Only visitor from United States and Japan can view this[/ip2loc]
+Result:
+You are coming from United States.
 
 
 
-To hide a text from visitor from Nigeria:
+To customize your post content, follow the example below.
 
-[ip2loc:-ng]Visitors from Nigeria can't see this text.[/ip2loc]
+To display content for United States and Canada visitors only, specify the ISO-3166 country code in the <ip> tag:
+
+<ip:US,CA>Only visitors from United States and Canada can view this line.</ip>
+
+
+
+To hide a content from visitors from Nigeria:
+
+<ip:-ng>Visitors from Nigeria will not able to view this line.</ip>
+
+
+
+Also, you can use this tag to display correct currency in your blog post.
+
+Exmaple:
+
+I bought a Apple computer for $100 <ip:GB>(£66)</ip><ip:JP>(¥9940)</ip>.
 
 
 
