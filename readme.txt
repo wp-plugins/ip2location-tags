@@ -24,15 +24,15 @@ You are coming from United States.
 
 To customize your post content, follow the example below.
 
-To display content for United States and Canada visitors only, specify the ISO-3166 country code in the <ip> tag:
+To display content for United States and Canada visitors only, specify the ISO-3166 country code in the &lt;ip&gt; tag:
 
-<ip:US,CA>Only visitors from United States and Canada can view this line.</ip>
+&lt;ip:US,CA&gt;Only visitors from United States and Canada can view this line.&lt;/ip&gt;
 
 
 
 To hide a content from visitors from Nigeria:
 
-<ip:-ng>Visitors from Nigeria will not able to view this line.</ip>
+&lt;ip:-ng&gt;Visitors from Nigeria will not able to view this line.&lt;/ip&gt;
 
 
 
@@ -40,7 +40,7 @@ Also, you can use this tag to display correct currency in your blog post.
 
 Exmaple:
 
-I bought a Apple computer for $100 <ip:GB>(£66)</ip><ip:JP>(¥9940)</ip>.
+I bought a Apple computer for $100 &lt;ip:GB&gt;(£66)&lt;/ip&gt;&lt;ip:JP&gt;(¥9940)&lt;/ip&gt;.
 
 
 
