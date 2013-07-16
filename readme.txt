@@ -10,9 +10,11 @@ Description: Customize blog content by visitor's location.
 
 == Description ==
 
-Use the special tags to display geolocation information of your visitors. You also can use this plugin to hide/show post content as well.
+IP2Location Tag provides a solution to easily get the visitor's location information based on IP address and customize the content display for different countries. This plugin uses IP2Location BIN file for location queries, therefore there is no need to set up any relational database to use it. Depending on the BIN file that you are using, this plugin is able to provide you the information of country, region or state, city, latitude and longitude, US ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation and usage type of origin for an IP address.
 
-Here is an example to display visitor origin country name.
+BIN file download:
+IP2Location Commercial database http://ip2location.com/buy
+IP2Location LITE database (free edition) http://lite.ip2location.com/
 
 Example:
 You are coming from {ip:countryName}.

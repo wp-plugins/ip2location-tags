@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: IP2Location Tag
-Plugin URI: http://www.ip2location.com/developers
+Plugin URI: http://ip2location.com/tutorials/wordpress-ip2location-tag
 Description: Enable you to use IP2Location tags to customize your post content by country.
 Version: 2.0
 Author: IP2Location
@@ -50,7 +50,6 @@ class IP2LocationTag {
 		$geo = new IP2Location(_ROOT . 'database.bin');
 
 		// Get geolocation by IP address
-		$_SERVER['REMOTE_ADDR'] = '8.8.8.8';
 		$result = $geo->lookup($_SERVER['REMOTE_ADDR']);
 
 		$this->result['ipAddress'] = $_SERVER['REMOTE_ADDR'];
@@ -173,7 +172,8 @@ class IP2LocationTag {
 			<div class="wrap">
 				<h3>IP2LOCATION TAG</h3>
 				<p>
-					Use <b>IP2Location Tag</b> to customize your blog content. You can hide or show your blog content for visitors from specified countries.
+					IP2Location Tag provides a solution to easily get the visitor\'s location information based on IP address and customize the content display for different countries. This plugin uses IP2Location BIN file for location queries, therefore there is no need to set up any relational database to use it. Depending on the BIN file that you are using, this plugin is able to provide you the information of country, region or state, city, latitude and longitude, US ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation and usage type of origin for an IP address.<br/><br/>
+					BIN file download: <a href="http://www.ip2location.com/?r=wordpress" target="_blank">IP2Location Commercial database</a> | <a href="http://lite.ip2location.com/?r=wordpress" targe="_blank">IP2Location LITE database (free edition)</a>.
 				</p>
 
 				<p>&nbsp;</p>';
@@ -181,10 +181,11 @@ class IP2LocationTag {
 			if(!file_exists(_ROOT . 'database.bin')){
 				echo '
 				<p class="red">
-					IP2Location database is not found. Please download IP2Location Lite database from <a href="http://lite.ip2location.com/?r=wordpress" target="_blank">http://lite.ip2location.com</a>.
+					IP2Location BIN file not found. Please download the BIN file at the following links:
+					<a href="http://www.ip2location.com/?r=wordpress" target="_blank">IP2Location commercial database</a> | <a href="http://lite.ip2location.com/?r=wordpress" target="_blank">IP2Location LITE database (free edition)</a>.
 				</p>
 				<p class="red">
-					After downloaded the package, decompress it and rename the .BIN file in the package to <b>database.bin</b>. Upload <b>database.bin</b> to <i>/wp-content/plugins/ip2location-tags/</i>.
+					After downloaded the package, decompress it and rename the .BIN file inside the package to <strong>database.bin</strong>. The, upload the BIN file,<strong>database.bin</strong>, to <em>/wp-content/plugins/ip2location-tags/</em>.
 				</p>';
 			}
 			else{
@@ -197,22 +198,21 @@ class IP2LocationTag {
 				if(filemtime(_ROOT . 'database.bin') < strtotime('-2 months')){
 					echo '
 					<p class="red">
-						<b>Reminder: </b>Your IP2Location database already outdated, this will lead to inaccurate result. Please download the latest version from <a href="http://lite.ip2location.com/?r=wordpress" target="_blank">http://lite.ip2location.com</a>.
+						<b>Reminder: </b>Your IP2Location database was outdated. Please download the latest version from <a href="http://www.ip2location.com/?r=wordpress" target="_blank">IP2Location commercial database</a> or <a href="http://lite.ip2location.com/?r=wordpress" target="_blank">IP2Location LITE database (free edition)</a>..
 					</p>
 					<p class="red">
-						After downloaded the package, decompress it and rename the .BIN file in the package to <b>database.bin</b>. Upload <b>database.bin</b> to <i>/wp-content/plugins/ip2location-tags/</i>.
+						After downloaded the package, decompress it and rename the .BIN file inside the package to <strong>database.bin</strong>. The, upload the BIN file,<strong>database.bin</strong>, to <em>/wp-content/plugins/ip2location-tags/</em>.
 					</p>';
 				}
 			}
 
+			//HJ modified - START//
 			echo '
 				<p>&nbsp;</p>
 
-				<h3>Variable Tags</h3>
-
-				<p>Here is the list of variable tags.</p>
-
+				<h3>Get visitor\'s location information with Variable Tag</h3>
 				<p>
+					<strong>Variable Tag List</strong>
 					<ul>
 						<li><span class="code">{ip:ipAddress}</span> - Visitor IP address.</li>
 						<li><span class="code">{ip:countryCode}</span> - Two-character country code based on ISO 3166.</li>
@@ -222,102 +222,62 @@ class IP2LocationTag {
 						<li><span class="code">{ip:latitude}</span> - Latitude of the city.</li>
 						<li><span class="code">{ip:longitude}</span> - Longitude of the city.</li>
 						<li><span class="code">{ip:zipCode}</span> - ZIP/Postal code.</li>
-						<li><span class="code">{ip:isp}</span><span class="red">*</span> - Internet Service Provider or company\'s name.</li>
-						<li><span class="code">{ip:domainName}</span><span class="red">*</span> - Internet domain name associated to IP address range.</li>
-						<li><span class="code">{ip:timeZone}</span><span class="red">*</span> - UTC time zone.</li>
-						<li><span class="code">{ip:netSpeed}</span><span class="red">*</span> - Internet connection type. DIAL = dial up, DSL = broadband/cable, COMP = company/T1</li>
-						<li><span class="code">{ip:iddCode}</span><span class="red">*</span> - The IDD prefix to call the city from another country.</li>
-						<li><span class="code">{ip:areaCode}</span><span class="red">*</span> - A varying length number assigned to geographic areas for call between cities.</li>
-						<li><span class="code">{ip:weatherStationCode}</span><span class="red">*</span> - The special code to identify the nearest weather observation station.</li>
-						<li><span class="code">{ip:weatherStationName}</span><span class="red">*</span> - The name of the nearest weather observation station.</li>
-						<li><span class="code">{ip:mcc}</span><span class="red">*</span> - Mobile Country Codes (MCC) as defined in ITU E.212 for use in identifying mobile stations in wireless telephone networks, particularly GSM and UMTS networks.</li>
-						<li><span class="code">{ip:mnc}</span><span class="red">*</span> - Mobile Network Code (MNC) is used in combination with a Mobile Country Code (MCC) to uniquely identify a mobile phone operator or carrier.</li>
-						<li><span class="code">{ip:mobileCarrierName}</span><span class="red">*</span> - Commercial brand associated with the mobile carrier.</li>
-						<li><span class="code">{ip:elevation}</span><span class="red">*</span> - Average height of city above sea level in meters (m).</li>
-						<li><span class="code">{ip:usageType}</span><span class="red">*</span> - Usage type classification of ISP or company.</li>
+						<li><span class="code">{ip:isp}</span> - Internet Service Provider or company\'s name.</li>
+						<li><span class="code">{ip:domainName}</span> - Internet domain name associated to IP address range.</li>
+						<li><span class="code">{ip:timeZone}</span> - UTC time zone.</li>
+						<li><span class="code">{ip:netSpeed}</span> - Internet connection type. DIAL = dial up, DSL = broadband/cable, COMP = company/T1</li>
+						<li><span class="code">{ip:iddCode}</span> - The IDD prefix to call the city from another country.</li>
+						<li><span class="code">{ip:areaCode}</span> - A varying length number assigned to geographic areas for call between cities.</li>
+						<li><span class="code">{ip:weatherStationCode}</span> - The special code to identify the nearest weather observation station.</li>
+						<li><span class="code">{ip:weatherStationName}</span> - The name of the nearest weather observation station.</li>
+						<li><span class="code">{ip:mcc}</span> - Mobile Country Codes (MCC) as defined in ITU E.212 for use in identifying mobile stations in wireless telephone networks, particularly GSM and UMTS networks.</li>
+						<li><span class="code">{ip:mnc}</span> - Mobile Network Code (MNC) is used in combination with a Mobile Country Code (MCC) to uniquely identify a mobile phone operator or carrier.</li>
+						<li><span class="code">{ip:mobileCarrierName}</span> - Commercial brand associated with the mobile carrier.</li>
+						<li><span class="code">{ip:elevation}</span> - Average height of city above sea level in meters (m).</li>
+						<li><span class="code">{ip:usageType}</span> - Usage type classification of ISP or company.</li>
 					</ul>
 				</p>
-				<p class="red">
-					* Additional tags only available with commercial database from <a href="http://www.ip2location.com/?r=wordpress" target="_blank">IP2Location.com</a>.
-				</p>
 				<p>&nbsp;</p>
 
-				<h4>Variable Tags Usage</h4>
+				<h4>Usage Example</h4>
 
 				<p>
-					<b>Code:</b>
+					<b>Display visitor\'s IP address, country name, region name and city name.</b>
 					<pre>Your IP is {ip:ipAddress}
-You are came from {ip:countryName}, {ip:regionName}, {ip:cityName}</pre>
-					<b>Result:</b>
-					<div class="result">Your IP is 8.8.8.8<br>You are came from United States, California, Mountain View</div>
+You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 				</p>
 
 				<p>&nbsp;</p>
 
-				<h3>Show/Hide Content with Tags</h3>
-
+				<h3>Customize the post content with IP2Location Tag</h3>
 				<p>
-					<b>Syntax:</b>
+					<h4>Syntax to show content for specific country</h4>
 					<pre>&lt;ip:XX[,XX]..[,XX]&gt;You content here.&lt;/ip&gt;</pre>
-
-					<div class="red"><b>Note:</b> XX is two digit ISO-3166 country code. Use "*" as wildcard.</div>
+					<div class="red">Note: XX is a two-digit ISO-3166 country code.</div>
 				</p>
-
-				<p>&nbsp;</p>
-
-				<h4>Usage</h4>
-
-				<p>Use IP2Location tag to show content for visitors from speficic countries.</p>
 				<p>
-					<b>Code:</b>
+					<strong>Example</strong><br/>
+					To show the content for United States and Canada visitors only.<br/>
 					<pre>&lt;ip:US,CA&gt;Only visitors from United States and Canada can view this line.&lt;/ip&gt;</pre>
-
-					<b>Result for visitor from United Status:</b>
-					<div class="result">Only visitors from United States and Canada can view this line.</div>
-
-					<b>Result for visitor from India:</b>
-					<div class="result">&nbsp;</div>
 				</p>
-
 				<p>&nbsp;</p>
-
-				<p>Use IP2Location tag to hide content for visitors from speficic countries. Add a "-" sign before country code to exclude the country.</p>
 				<p>
-					<b>Code:</b>
-					<pre>&lt;ip:*,-VN&gt;All visitors able to see this line except visitors from Vietnam.&lt;/ip&gt;</pre>
-
-					<b>Result for visitor from United Status:</b>
-					<div class="result">All visitors able to see this line except visitors from Vietnam.</div>
-
-					<b>Result for visitor from Vietname:</b>
-					<div class="result">&nbsp;</div>
+					<h4>Syntax to hide the content from specific country</h4>
+					<pre>&lt;ip:*,-XX[,-XX]..[,-XX]&gt;You content here.&lt;/ip&gt;</pre>
+					<div class="red">Note: XX is a two-digit ISO-3166 country code.</div>
 				</p>
-
-				<p>&nbsp;</p>
-
-				<p>Use IP2Location tag to show related currencies.</p>
 				<p>
-					<b>Code:</b>
-					<pre>I\'m selling my computer for $100&lt;ip:GB&gt; (£66)&lt;/ip&gt;&lt;ip:JP&gt; (¥9940)&lt;/ip&gt;.</pre>
-
-					<b>Result for visitor from United Status:</b>
-					<div class="result">I\'m selling my computer for $100.</div>
-
-					<b>Result for visitor from United Kingdom:</b>
-					<div class="result">I\'m selling my computer for $100 (£66).</div>
-
-					<b>Result for visitor from Japan:</b>
-					<div class="result">I\'m selling my computer for $100 (¥9940).</div>
-
-					<b>Result for visitor from China:</b>
-					<div class="result">I\'m selling my computer for $100.</div>
+					<strong>Example</strong><br/>
+					All visitors will be able to see the line except visitors from Vietnam.</br>
+					<pre>&lt;ip:*,-VN&gt;All visitors will be able to see this line except visitors from Vietnam.&lt;/ip&gt;</pre>
 				</p>
 
 				<p>&nbsp;</p>
 
 				<h3>References</h3>
 
-				<p>Please refer to ISO website for <a href="http://www.iso.org/iso/home/standards/country_codes/country_names_and_code_elements.htm" target="_blank">country codes</a>.</p>';
+				<p>Please visit <a href="http://www.ip2location.com/free/country-multilingual" target="_blank">http://www.ip2location.com</a> for ISO country codes and names supported.</p>';
+				//HJ modified - END
 		}
 	}
 
