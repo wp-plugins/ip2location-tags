@@ -23,20 +23,20 @@ Display visitor's IP address, country name, region name and city name.
 
 = Customize the post content with IP2Location Tag =
 **Syntax to show content for specific country**  
-*<ip:XX[,XX]..[,XX]>You content here.</ip>*  
+*&lt;ip:XX[,XX]..[,XX]&gt;You content here.&lt;/ip&gt;*  
 Note: XX is a two-digit ISO-3166 country code.  
 
 *Example*  
 To show the content for United States and Canada visitors only.  
-*<ip:US,CA>Only visitors from United States and Canada can view this line.</ip>*  
+*&lt;ip:US,CA&gt;Only visitors from United States and Canada can view this line.&lt;/ip&gt;*  
 
 **Syntax to hide the content from specific country**  
-*<ip:*,-XX[,-XX]..[,-XX]>You content here.</ip>*  
+*&lt;ip:*,-XX[,-XX]..[,-XX]&gt;You content here.&lt;/ip&gt;*  
 Note: XX is a two-digit ISO-3166 country code.  
 
 *Example*  
 All visitors will be able to see the line except visitors from Vietnam.  
-*<ip:*,-VN>All visitors will be able to see this line except visitors from Vietnam.</ip>*  
+*&lt;ip:*,-VN&gt;All visitors will be able to see this line except visitors from Vietnam.&lt;/ip&gt;*  
 
 = More Information =
 Please visit us at [http://www.ip2location.com](http://www.ip2location.com/tutorials/wordpress-ip2location-tag "http://www.ip2location.com")  
