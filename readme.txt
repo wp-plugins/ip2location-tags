@@ -6,7 +6,7 @@ Requires at least: 2.0
 Tested up to: 3.5.2
 Stable tag: 2.0
 
-Description: IP2Location Tag provides a solution to easily get the visitor's location information based on IP address and customize the content display for different countries. This plugin uses IP2Location BIN file for location queries, therefore there is no need to set up any relational database to use it.
+Description: Easily get/display the visitor's location information based on IP address and customize the content display for different countries. This plugin uses IP2Location BIN file for location queries, therefore there is no need to set up any relational database to use it.
 
 == Description ==
 
