@@ -4,7 +4,7 @@
 Plugin Name: IP2Location Tag
 Plugin URI: http://ip2location.com/tutorials/wordpress-ip2location-tag
 Description: Enable you to use IP2Location tags to customize your post content by country.
-Version: 2.0
+Version: 2.1
 Author: IP2Location
 Author URI: http://www.ip2location.com
 */
@@ -71,7 +71,18 @@ class IP2LocationTag {
 		return substr($s, $data, $len);
 	}
 
-	function parse($content){
+	function parseWidget($content){
+		// Escape tags
+		$content = str_replace(array('<', '>'), array('&lt;', '&gt;'), $content);
+
+		// Parse widget content
+		$content = $this->parse($content, true);
+
+		// Restore tags and return value
+		return str_replace(array('&lt;', '&gt;'), array('<', '>'), $content);
+	}
+
+	function parse($content, $widget=false){
 		$find = array(
 			'{ip:ipAddress}',
 			'{ip:countryCode}',
@@ -293,7 +304,7 @@ You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 		add_action('wp', array(&$this, 'getLocation'), 101);
 		add_action('admin_menu', array(&$this, 'admin_page'));
 		add_filter('the_content', array(&$this, 'parse'));
-		add_filter('widget_text', array(&$this, 'parse'));
+		add_filter('widget_text', array(&$this, 'parseWidget'));
 	}
 
 	function _case($s){
