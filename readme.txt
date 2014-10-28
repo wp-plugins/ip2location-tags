@@ -3,8 +3,8 @@ Contributors: IP2Location
 Donate link: http://www.ip2location.com
 Tags: targeted content, geolocation
 Requires at least: 2.0
-Tested up to: 3.8
-Stable tag: 2.1
+Tested up to: 4.0
+Stable tag: 2.2
 
 Description: Easily get/display the visitor's location information based on IP address and customize the content display for different countries. This plugin uses IP2Location BIN file for location queries, therefore there is no need to set up any relational database to use it.
 
@@ -23,20 +23,20 @@ Display visitor's IP address, country name, region name and city name.
 
 = Customize the post content with IP2Location Tag =
 **Syntax to show content for specific country**
-*&lt;ip:XX[,XX]..[,XX]&gt;You content here.&lt;/ip&gt;*
+*[ip:XX[,XX]..[,XX]]You content here.[/ip]*
 Note: XX is a two-digit ISO-3166 country code.
 
 *Example*
 To show the content for United States and Canada visitors only.
-*&lt;ip:US,CA&gt;Only visitors from United States and Canada can view this line.&lt;/ip&gt;*
+*[ip:US,CA]Only visitors from United States and Canada can view this line.[/ip]*
 
 **Syntax to hide the content from specific country**
-*&lt;ip:\*,-XX[,-XX]..[,-XX]&gt;You content here.&lt;/ip&gt;*
+*[ip:\*,-XX[,-XX]..[,-XX]]You content here.[/ip]*
 Note: XX is a two-digit ISO-3166 country code.
 
 *Example*
 All visitors will be able to see the line except visitors from Vietnam.
-*&lt;ip:\*,-VN&gt;All visitors will be able to see this line except visitors from Vietnam.&lt;/ip&gt;*
+*[ip:\*,-VN]All visitors will be able to see this line except visitors from Vietnam.[/ip]*
 
 = More Information =
 Please visit us at [http://www.ip2location.com](http://www.ip2location.com/tutorials/wordpress-ip2location-tag "http://www.ip2location.com")
@@ -45,4 +45,11 @@ Please visit us at [http://www.ip2location.com](http://www.ip2location.com/tutor
 
 1. Upload `ip2location` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. You can now start using IP2Location tag to customize your post content.
+3. Download the latest BIN database at settings page.
+4. You can now start using IP2Location tag to customize your post content.
+
+== Changelog ==
+
+* 2.1.0 Initial release.
+* 2.2.0 Support database downloading on settings page.
+		Support bracket [] to define the tag rule in addition to &lt;&lgt;, to solve of issue of being treated as script tag by wordpress.

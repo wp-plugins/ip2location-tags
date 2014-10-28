@@ -106,7 +106,6 @@ class IP2Location {
 
 		// Use Big Endian Unpack if endian test failed
 		$this->unpack = (($test != 1)) ? self::BIG_ENDIAN : self::ENDIAN;
-
 		switch($mode){
 			case self::SHARED_MEMORY:
 				if(!function_exists('shmop_open')) throw new Exception('Please make sure your PHP setup has "php_shmop" enabled.');
@@ -171,7 +170,21 @@ class IP2Location {
 		$this->db['base_address'] = $this->readByte(10, '32');
 		$this->db['ip_version'] = $this->readByte(14, '32');
 	}
-
+	//108: new function to get the database version
+	public function dbVersion($file=NULL, $mode=self::FILE_IO)
+	{
+		if(!is_file($file)) throw new Exception('Unable to open file "' . $file . '".');
+		// Define system unpack method
+		list($test) = array_values(unpack('L1L', pack('V', 1)));
+		// Use Big Endian Unpack if endian test failed
+		$this->unpack = (($test != 1)) ? self::BIG_ENDIAN : self::ENDIAN;
+		$this->mode = self::FILE_IO;
+		$this->handle = fopen($file, 'rb');
+		$this->db['year'] = $this->readByte(3, '8');
+		$this->db['month'] = $this->readByte(4, '8');
+		$this->db['year'] += 2000;
+		return array('year' => $this->db['year'],'month' => $this->db['month']);
+	}
 	private function readByte($pos, $mode='string', $autoSize = false){
 		switch($this->mode){
 			case self::SHARED_MEMORY:
