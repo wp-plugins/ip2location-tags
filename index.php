@@ -4,15 +4,15 @@
 Plugin Name: IP2Location Tag
 Plugin URI: http://ip2location.com/tutorials/wordpress-ip2location-tag
 Description: Enable you to use IP2Location tags to customize your post content by country.
-Version: 2.2
+Version: 2.3
 Author: IP2Location
 Author URI: http://www.ip2location.com
 */
 
 define('DS', DIRECTORY_SEPARATOR);
-define('_ROOT', dirname(__FILE__) . DS);
+define('IP2LOCATION_TAGS_ROOT', dirname(__FILE__) . DS);
 //108: add_action for download_db function
-add_action('wp_ajax_download_db', 'ip2location_download_db');
+add_action('wp_ajax_download_db', 'ip2location_tags_download_db');
 class IP2LocationTag {
 	var $result = array(
 		'ipAddress'=>'',
@@ -43,12 +43,12 @@ class IP2LocationTag {
 		if(is_admin()) return false;
 
 		// Make sure IP2Location database is exist
-		if(!file_exists(_ROOT . 'database.bin')) return false;
+		if(!file_exists(IP2LOCATION_TAGS_ROOT . 'database.bin')) return false;
 
-		require_once(_ROOT . 'ip2location.class.php');
+		require_once(IP2LOCATION_TAGS_ROOT . 'ip2location.class.php');
 
 		// Create IP2Location object
-		$geo = new IP2Location(_ROOT . 'database.bin');
+		$geo = new IP2Location(IP2LOCATION_TAGS_ROOT . 'database.bin');
 
 		// Get geolocation by IP address
 		$result = $geo->lookup($_SERVER['REMOTE_ADDR']);
@@ -75,7 +75,7 @@ class IP2LocationTag {
 	function parseWidget($content){
 		// Escape tags
 		$content = str_replace(array('<', '>'), array('&lt;', '&gt;'), $content);
-		
+
 		// Parse widget content
 		$content = $this->parse($content, true);
 
@@ -137,69 +137,69 @@ class IP2LocationTag {
 		// Parse IP2Location tags
 		do{
 			// Get country list from tag
-			$data = $this->parseTag($content, '&lt;ip:', '&gt;');	
-			
+			$data = $this->parseTag($content, '&lt;ip:', '&gt;');
+
 			// Get protected text from tag
 			$text = $this->parseTag($content, '&lt;ip:' . $data . '&gt;', '&lt;/ip&gt;');
-			
+
 			// Get the whole tag
 			$from = '&lt;ip:' . $data . '&gt;' . $text . '&lt;/ip&gt;';
-			
+
 			$countries = explode(',', str_replace(' ', '', strtoupper($data)));
-			
+
 			$to = '';
-			
+
 			// Show text for listed country
 			if(in_array($this->result['countryCode'], $countries)){
 				$to = $text;
 			}
-			
+
 			// Show text if wildcard defined
 			if(in_array('*', $countries)){
 				$to = $text;
 			}
-			
+
 			// Hide text for prohibited country
 			if(in_array('-' . $this->result['countryCode'], $countries)){
 				$to = '';
 			}
 
 			$content = str_replace($from, $to, $content);
-			
+
 		} while(!empty($data));
 		//105 : added a new loop to support shortcode syntax
 		do{
 			// Get country list from tag
 			$data2 = $this->parseTag($content, '[ip:', ']');
-			
+
 			// Get protected text from tag
 			$text2 = $this->parseTag($content, '[ip:' . $data2 . ']', '[/ip]');
-			
+
 			// Get the whole tag
 			$from2 = '[ip:' . $data2 . ']' . $text2 . '[/ip]';
-			
+
 			$countries2 = explode(',', str_replace(' ', '', strtoupper($data2)));
-			
+
 			$to2 = '';
 			// Show text for listed country
 			if(in_array($this->result['countryCode'], $countries2)){
 				$to2 = $text2;
 			}
-			
+
 			// Show text if wildcard defined
 			if(in_array('*', $countries2)){
 				$to2 = $text2;
 			}
-			
+
 			// Hide text for prohibited country
 			if(in_array('-' . $this->result['countryCode'], $countries2)){
 				$to2 = '';
 			}
-			
+
 			$content = str_replace($from2, $to2, $content);
-			
+
 		} while(!empty($data2));
-		
+
 		return $content;
 	}
 
@@ -222,7 +222,7 @@ class IP2LocationTag {
 
 				<p>&nbsp;</p>';
 
-			if(!file_exists(_ROOT . 'database.bin')){
+			if(!file_exists(IP2LOCATION_TAGS_ROOT . 'database.bin')){
 				echo '
 				<p class="red">
 					IP2Location BIN file not found. Please download the BIN file at the following links:
@@ -234,9 +234,9 @@ class IP2LocationTag {
 			}
 			else{
 				//108 : change the fileietime.
-				require_once(_ROOT . 'ip2location.class.php');
-				$dbVersion = new IP2Location(_ROOT . 'database.bin');
-				$dbArray = $dbVersion->dbVersion(_ROOT . 'database.bin');
+				require_once(IP2LOCATION_TAGS_ROOT . 'ip2location.class.php');
+				$dbVersion = new IP2Location(IP2LOCATION_TAGS_ROOT . 'database.bin');
+				$dbArray = $dbVersion->dbVersion(IP2LOCATION_TAGS_ROOT . 'database.bin');
 				$months = array('','January','February','March','April','May','June','July','August','September','October','November','December');
 				echo '
 				<p>
@@ -348,7 +348,7 @@ class IP2LocationTag {
 
 				</div>
 			';
-			
+
 			echo '
 				<p>&nbsp;</p>
 				<a name="ip-query"></a>
@@ -357,10 +357,10 @@ class IP2LocationTag {
 				</div>
 				<p>
 					Enter a valid IP address for checking.
-				</p>';		
+				</p>';
 			$ipAddr = (isset($_POST['ipAddr'])) ? $_POST['ipAddr'] : '';
 			if(isset($_POST['lookup'])) {
-				
+
 				if(!filter_var($ipAddr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6)) {
 					echo '<p style="color:#cc0000">Invalid IP address.</p>';
 				}
@@ -379,7 +379,7 @@ class IP2LocationTag {
 				</form>
 
 			<p>&nbsp;</p>
-			';			
+			';
 			//HJ modified - START//
 			echo '
 				<p>&nbsp;</p>
@@ -458,7 +458,7 @@ You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 	function load_jquery() {
 		wp_enqueue_script('jquery');
 	}
-	
+
 	//108: change add_management_page to add_options_page so that setting appear in wordpress setting instead of tools
 	function admin_page(){
 		add_options_page('IP2Location Tag', 'IP2Location Tag', 8, 'ip2location-tag', array(&$this, 'admin_options'));
@@ -483,7 +483,7 @@ You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 }
 
 //108 : function to download or update db
-function ip2location_download_db() {
+function ip2location_tags_download_db() {
 	try {
 		$product_code = $_POST['product_code'];
 		$username = $_POST['username'];
@@ -543,13 +543,15 @@ function ip2location_download_db() {
 //108 : get_location for ip_query.
 function query_ip($ip) {
 	// Make sure IP2Location database is exist
-	if(!file_exists(_ROOT . 'database.bin')) return false;
+	if(!file_exists(IP2LOCATION_TAGS_ROOT . 'database.bin')) return false;
 
-	require_once(_ROOT . 'ip2location.class.php');
+	if ( ! class_exists( 'IP2LocationRecord' ) && ! class_exists( 'IP2Location' ) ) {
+		require_once( IP2LOCATION_REDIRECTION_ROOT . 'ip2location.class.php' );
+	}
 
 	// Create IP2Location object
-	$geo = new IP2Location(_ROOT . 'database.bin');
-	
+	$geo = new IP2Location(IP2LOCATION_TAGS_ROOT . 'database.bin');
+
 	// Get geolocation by IP address
 	$LocResult = $geo->lookup($ip);
 
