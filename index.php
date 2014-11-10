@@ -13,54 +13,46 @@ Author URI: http://www.ip2location.com
 define('IP2LOCATION_TAGS_ROOT', dirname(__FILE__) . DS);
 
 class IP2LocationTags {
-	var $result = array(
-		'ipAddress'=>'',
-		'countryCode'=>'',
-		'countryName'=>'',
-		'regionName'=>'',
-		'cityName'=>'',
-		'latitude'=>'',
-		'longitude'=>'',
-		'isp'=>'',
-		'domainName'=>'',
-		'zipCode'=>'',
-		'timeZone'=>'',
-		'netSpeed'=>'',
-		'iddCode'=>'',
-		'areaCode'=>'',
-		'weatherStationCode'=>'',
-		'weatherStationName'=>'',
-		'mcc'=>'',
-		'mnc'=>'',
-		'mobileCarrierName'=>'',
-		'elevation'=>'',
-		'usageType'=>'',
-	);
 
-	function getLocation() {
-		// Skip geolocation lookup for admin pages
-		if(is_admin()) return false;
-
-		// Make sure IP2Location database is exist
-		if(!file_exists(IP2LOCATION_TAGS_ROOT . 'database.bin')) return false;
+	function get_location( $ip ) {
+		// Make sure IP2Location database is exist.
+		if ( !is_file( IP2LOCATION_TAGS_ROOT . get_option( 'ip2location_tags_database' ) ) ) {
+			return;
+		}
 
 		if ( ! class_exists( 'IP2LocationRecord' ) && ! class_exists( 'IP2Location' ) ) {
-			require_once( IP2LOCATION_REDIRECTION_ROOT . 'ip2location.class.php' );
+			require_once( IP2LOCATION_TAGS_ROOT . 'ip2location.class.php' );
 		}
 
-		// Create IP2Location object
-		$geo = new IP2Location(IP2LOCATION_TAGS_ROOT . 'database.bin');
+		// Create IP2Location object.
+		$geo = new IP2Location( IP2LOCATION_TAGS_ROOT . get_option( 'ip2location_tags_database' ) );
 
-		// Get geolocation by IP address
-		$result = $geo->lookup($_SERVER['REMOTE_ADDR']);
+		// Get geolocation by IP address.
+		$response = $geo->lookup( $ip );
 
-		$this->result['ipAddress'] = $_SERVER['REMOTE_ADDR'];
-
-		foreach($result as $key=>$value){
-			if(isset($this->result[$key])) $this->result[$key] = ((in_array($key, array('countryName', 'regionName', 'cityName'))) ? $this->set_case($value) : $value);
-		}
-
-		return true;
+		return array(
+			'ipAddress' => $ip,
+			'countryCode' => $response->countryCode,
+			'countryName' => IP2LocationTags::set_case( $response->countryName ),
+			'regionName' => IP2LocationTags::set_case( $response->regionName ),
+			'cityName' => IP2LocationTags::set_case( $response->cityName ),
+			'latitude' => $response->latitude,
+			'longitude' => $response->longitude,
+			'isp'=> $response->isp,
+			'domainName' => $response->domainName,
+			'zipCode' => $response->zipCode,
+			'timeZone' => $response->timeZone,
+			'netSpeed' => $response->netSpeed,
+			'iddCode' => $response->iddCode,
+			'areaCode' => $response->areaCode,
+			'weatherStationCode' => $response->weatherStationCode,
+			'weatherStationName' =>IP2LocationTags::set_case( $response->weatherStationName ) ,
+			'mcc' => $response->mcc,
+			'mnc' => $response->mnc,
+			'mobileCarrierName' => IP2LocationTags::set_case( $response->mobileCarrierName ),
+			'elevation' => $response->elevation,
+			'usageType' => $response->usageType,
+		);
 	}
 
 	function parse_tag( $s, $start, $end ) {
@@ -88,7 +80,19 @@ class IP2LocationTags {
 		return str_replace( array( '&lt;', '&gt;' ), array( '<', '>' ), $content );
 	}
 
-	function parse($content, $widget=false){
+	function parse( $content, $widget = false ) {
+		$ipAddress = $_SERVER['REMOTE_ADDR'];
+
+		if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 ) ) {
+			$ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		}
+
+		$result = IP2LocationTags::get_location( $ipAddress );
+
+		if ( ! $result ) {
+			$content;
+		}
+
 		$find = array(
 			'{ip:ipAddress}',
 			'{ip:countryCode}',
@@ -114,97 +118,97 @@ class IP2LocationTags {
 		);
 
 		$replace = array(
-			$this->result['ipAddress'],
-			$this->result['countryCode'],
-			$this->result['countryName'],
-			$this->result['regionName'],
-			$this->result['cityName'],
-			$this->result['latitude'],
-			$this->result['longitude'],
-			$this->result['isp'],
-			$this->result['domainName'],
-			$this->result['zipCode'],
-			$this->result['timeZone'],
-			$this->result['netSpeed'],
-			$this->result['iddCode'],
-			$this->result['areaCode'],
-			$this->result['weatherStationCode'],
-			$this->result['weatherStationName'],
-			$this->result['mcc'],
-			$this->result['mnc'],
-			$this->result['mobileCarrierName'],
-			$this->result['elevation'],
-			$this->result['usageType'],
+			$result['ipAddress'],
+			$result['countryCode'],
+			$result['countryName'],
+			$result['regionName'],
+			$result['cityName'],
+			$result['latitude'],
+			$result['longitude'],
+			$result['isp'],
+			$result['domainName'],
+			$result['zipCode'],
+			$result['timeZone'],
+			$result['netSpeed'],
+			$result['iddCode'],
+			$result['areaCode'],
+			$result['weatherStationCode'],
+			$result['weatherStationName'],
+			$result['mcc'],
+			$result['mnc'],
+			$result['mobileCarrierName'],
+			$result['elevation'],
+			$result['usageType'],
 		);
 
 		// Replace geolocation variables
-		$content = str_replace($find, $replace, $content);
+		$content = str_replace( $find, $replace, $content );
 
 		// Parse IP2Location tags
-		do{
+		do {
 			// Get country list from tag
-			$data = $this->parse_tag($content, '&lt;ip:', '&gt;');
+			$data = IP2LocationTags::parse_tag( $content, '&lt;ip:', '&gt;' );
 
 			// Get protected text from tag
-			$text = $this->parse_tag($content, '&lt;ip:' . $data . '&gt;', '&lt;/ip&gt;');
+			$text = IP2LocationTags::parse_tag( $content, '&lt;ip:' . $data . '&gt;', '&lt;/ip&gt;' );
 
 			// Get the whole tag
 			$from = '&lt;ip:' . $data . '&gt;' . $text . '&lt;/ip&gt;';
 
-			$countries = explode(',', str_replace(' ', '', strtoupper($data)));
+			$countries = explode( ',', str_replace( ' ', '', strtoupper( $data ) ) );
 
 			$to = '';
 
 			// Show text for listed country
-			if(in_array($this->result['countryCode'], $countries)){
+			if ( in_array( $result['countryCode'], $countries ) ){
 				$to = $text;
 			}
 
 			// Show text if wildcard defined
-			if(in_array('*', $countries)){
+			if ( in_array('*', $countries ) ){
 				$to = $text;
 			}
 
 			// Hide text for prohibited country
-			if(in_array('-' . $this->result['countryCode'], $countries)){
+			if ( in_array( '-' . $result['countryCode'], $countries ) ){
 				$to = '';
 			}
 
-			$content = str_replace($from, $to, $content);
+			$content = str_replace( $from, $to, $content );
 
-		} while(!empty($data));
+		} while( !empty( $data ) );
 
 		do{
 			// Get country list from tag
-			$data2 = $this->parse_tag($content, '[ip:', ']');
+			$data2 = IP2LocationTags::parse_tag( $content, '[ip:', ']' );
 
 			// Get protected text from tag
-			$text2 = $this->parse_tag($content, '[ip:' . $data2 . ']', '[/ip]');
+			$text2 = IP2LocationTags::parse_tag( $content, '[ip:' . $data2 . ']', '[/ip]' );
 
 			// Get the whole tag
 			$from2 = '[ip:' . $data2 . ']' . $text2 . '[/ip]';
 
-			$countries2 = explode(',', str_replace(' ', '', strtoupper($data2)));
+			$countries2 = explode( ',', str_replace( ' ', '', strtoupper( $data2 ) ) );
 
 			$to2 = '';
 			// Show text for listed country
-			if(in_array($this->result['countryCode'], $countries2)){
+			if( in_array( $result['countryCode'], $countries2 ) ){
 				$to2 = $text2;
 			}
 
 			// Show text if wildcard defined
-			if(in_array('*', $countries2)){
+			if( in_array( '*', $countries2 ) ) {
 				$to2 = $text2;
 			}
 
 			// Hide text for prohibited country
-			if(in_array('-' . $this->result['countryCode'], $countries2)){
+			if( in_array( '-' . $result['countryCode'], $countries2 ) ) {
 				$to2 = '';
 			}
 
-			$content = str_replace($from2, $to2, $content);
+			$content = str_replace( $from2, $to2, $content );
 
-		} while(!empty($data2));
+		} while( !empty( $data2 ) );
 
 		return $content;
 	}
@@ -468,12 +472,26 @@ You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 		add_options_page( 'IP2Location Tags', 'IP2Location Tags', 8, 'ip2location-tags', array( 'IP2LocationTags', 'admin_options' ) );
 	}
 
-	function activate(){
-		//die(header('Location: edit.php?page=ip2location-tag'));
+	function set_defaults() {
+		update_option( 'ip2location_tags_database', '' );
+
+		// Find any .BIN files in current directory
+		$files = scandir( IP2LOCATION_TAGS_ROOT );
+
+		foreach( $files as $file ){
+			if ( substr( $file, -4 ) == '.bin' || substr( $file, -4 ) == '.BIN' ){
+				update_option( 'ip2location_tags_database', $file );
+				break;
+			}
+		}
+	}
+
+	function uninstall() {
+		// Remove all settings
+		delete_option( 'ip2location_tags_database' );
 	}
 
 	function start() {
-		add_action( 'wp', array( 'IP2LocationTags', 'getLocation' ), 101 );
 		add_action( 'admin_menu', array( 'IP2LocationTags', 'admin_page' ) );
 		add_filter( 'the_content', array( 'IP2LocationTags', 'parse' ) );
 		add_filter( 'widget_text', array( 'IP2LocationTags', 'parse_widget' ) );
@@ -551,7 +569,7 @@ function query_ip($ip) {
 	if(!file_exists(IP2LOCATION_TAGS_ROOT . 'database.bin')) return false;
 
 	if ( ! class_exists( 'IP2LocationRecord' ) && ! class_exists( 'IP2Location' ) ) {
-		require_once( IP2LOCATION_REDIRECTION_ROOT . 'ip2location.class.php' );
+		require_once( IP2LOCATION_TAGS_ROOT . 'ip2location.class.php' );
 	}
 
 	// Create IP2Location object
@@ -567,6 +585,8 @@ function query_ip($ip) {
 $ip2location_tags = new IP2LocationTags();
 $ip2location_tags->start();
 
-register_activation_hook( __FILE__, array( 'IP2LocationTags', 'activate' ) );
+register_activation_hook( __FILE__, array( 'IP2LocationTags', 'set_defaults' ) );
+register_uninstall_hook( __FILE__, array( 'IP2LocationTags', 'uninstall' ) );
+
 add_action( 'wp_ajax_download_db', 'ip2location_tags_download_db' );
 ?>
