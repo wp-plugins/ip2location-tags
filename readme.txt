@@ -53,3 +53,4 @@ Please visit us at [http://www.ip2location.com](http://www.ip2location.com/tutor
 * 2.1.0 Initial release.
 * 2.2.0 Support database downloading on settings page.
 		Support bracket [] to define the tag rule in addition to &lt;&lgt;, to solve of issue of being treated as script tag by wordpress.
+* 2.3.0 Fixed crashed with other IP2Location plugins.
