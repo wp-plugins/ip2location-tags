@@ -1,19 +1,18 @@
 <?php
 
 /*
-Plugin Name: IP2Location Tag
+Plugin Name: IP2Location Tags
 Plugin URI: http://ip2location.com/tutorials/wordpress-ip2location-tag
 Description: Enable you to use IP2Location tags to customize your post content by country.
-Version: 2.3
+Version: 2.3.1
 Author: IP2Location
 Author URI: http://www.ip2location.com
 */
 
-define('DS', DIRECTORY_SEPARATOR);
+!defined('DS') && define('DS', DIRECTORY_SEPARATOR);
 define('IP2LOCATION_TAGS_ROOT', dirname(__FILE__) . DS);
-//108: add_action for download_db function
-add_action('wp_ajax_download_db', 'ip2location_tags_download_db');
-class IP2LocationTag {
+
+class IP2LocationTags {
 	var $result = array(
 		'ipAddress'=>'',
 		'countryCode'=>'',
@@ -45,7 +44,9 @@ class IP2LocationTag {
 		// Make sure IP2Location database is exist
 		if(!file_exists(IP2LOCATION_TAGS_ROOT . 'database.bin')) return false;
 
-		require_once(IP2LOCATION_TAGS_ROOT . 'ip2location.class.php');
+		if ( ! class_exists( 'IP2LocationRecord' ) && ! class_exists( 'IP2Location' ) ) {
+			require_once( IP2LOCATION_REDIRECTION_ROOT . 'ip2location.class.php' );
+		}
 
 		// Create IP2Location object
 		$geo = new IP2Location(IP2LOCATION_TAGS_ROOT . 'database.bin');
@@ -56,31 +57,35 @@ class IP2LocationTag {
 		$this->result['ipAddress'] = $_SERVER['REMOTE_ADDR'];
 
 		foreach($result as $key=>$value){
-			if(isset($this->result[$key])) $this->result[$key] = ((in_array($key, array('countryName', 'regionName', 'cityName'))) ? $this->_case($value) : $value);
+			if(isset($this->result[$key])) $this->result[$key] = ((in_array($key, array('countryName', 'regionName', 'cityName'))) ? $this->set_case($value) : $value);
 		}
 
 		return true;
 	}
 
-	function parseTag($s, $start, $end) {
+	function parse_tag( $s, $start, $end ) {
 		$s = ' ' . $s;
-		$data = strpos($s, $start);
-		if($data == 0) return '';
-		$data += strlen($start);
-		$len = strpos($s, $end, $data) - $data;
+		$data = strpos( $s, $start );
 
-		return substr($s, $data, $len);
+		if ( $data == 0 ) {
+			return '';
+		}
+
+		$data += strlen( $start );
+		$len = strpos( $s, $end, $data ) - $data;
+
+		return substr( $s, $data, $len );
 	}
 
-	function parseWidget($content){
+	function parse_widget( $content ) {
 		// Escape tags
-		$content = str_replace(array('<', '>'), array('&lt;', '&gt;'), $content);
+		$content = str_replace( array( '<', '>' ), array( '&lt;', '&gt;' ), $content );
 
 		// Parse widget content
-		$content = $this->parse($content, true);
+		$content = $this->parse( $content, true );
 
 		// Restore tags and return value
-		return str_replace(array('&lt;', '&gt;'), array('<', '>'), $content);
+		return str_replace( array( '&lt;', '&gt;' ), array( '<', '>' ), $content );
 	}
 
 	function parse($content, $widget=false){
@@ -134,13 +139,14 @@ class IP2LocationTag {
 
 		// Replace geolocation variables
 		$content = str_replace($find, $replace, $content);
+
 		// Parse IP2Location tags
 		do{
 			// Get country list from tag
-			$data = $this->parseTag($content, '&lt;ip:', '&gt;');
+			$data = $this->parse_tag($content, '&lt;ip:', '&gt;');
 
 			// Get protected text from tag
-			$text = $this->parseTag($content, '&lt;ip:' . $data . '&gt;', '&lt;/ip&gt;');
+			$text = $this->parse_tag($content, '&lt;ip:' . $data . '&gt;', '&lt;/ip&gt;');
 
 			// Get the whole tag
 			$from = '&lt;ip:' . $data . '&gt;' . $text . '&lt;/ip&gt;';
@@ -167,13 +173,13 @@ class IP2LocationTag {
 			$content = str_replace($from, $to, $content);
 
 		} while(!empty($data));
-		//105 : added a new loop to support shortcode syntax
+
 		do{
 			// Get country list from tag
-			$data2 = $this->parseTag($content, '[ip:', ']');
+			$data2 = $this->parse_tag($content, '[ip:', ']');
 
 			// Get protected text from tag
-			$text2 = $this->parseTag($content, '[ip:' . $data2 . ']', '[/ip]');
+			$text2 = $this->parse_tag($content, '[ip:' . $data2 . ']', '[/ip]');
 
 			// Get the whole tag
 			$from2 = '[ip:' . $data2 . ']' . $text2 . '[/ip]';
@@ -205,7 +211,6 @@ class IP2LocationTag {
 
 	function admin_options() {
 		if(is_admin()) {
-			//108: add action for enqueue jquery
 			add_action('wp_enqueue_script', 'load_jquery');
 			echo '
 			<style type="text/css">
@@ -215,9 +220,9 @@ class IP2LocationTag {
 				.result{margin:0 0 20px 0;border:1px solid #006699;backgroumd:#99ffcc;color:#000033;padding:8px}
 			</style>
 			<div class="wrap">
-				<h3>IP2LOCATION TAG</h3>
+				<h3>IP2LOCATION TAGS</h3>
 				<p>
-					IP2Location Tag provides a solution to easily get the visitor\'s location information based on IP address and customize the content display for different countries. This plugin uses IP2Location BIN file for location queries, therefore there is no need to set up any relational database to use it. Depending on the BIN file that you are using, this plugin is able to provide you the information of country, region or state, city, latitude and longitude, US ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation and usage type of origin for an IP address.<br/><br/>
+					IP2Location Tags provides a solution to easily get the visitor\'s location information based on IP address and customize the content display for different countries. This plugin uses IP2Location BIN file for location queries, therefore there is no need to set up any relational database to use it. Depending on the BIN file that you are using, this plugin is able to provide you the information of country, region or state, city, latitude and longitude, US ZIP code, time zone, Internet Service Provider (ISP) or company name, domain name, net speed, area code, weather station code, weather station name, mobile country code (MCC), mobile network code (MNC) and carrier brand, elevation and usage type of origin for an IP address.<br/><br/>
 				</p>
 
 				<p>&nbsp;</p>';
@@ -459,25 +464,25 @@ You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 		wp_enqueue_script('jquery');
 	}
 
-	//108: change add_management_page to add_options_page so that setting appear in wordpress setting instead of tools
-	function admin_page(){
-		add_options_page('IP2Location Tag', 'IP2Location Tag', 8, 'ip2location-tag', array(&$this, 'admin_options'));
+	function admin_page() {
+		add_options_page( 'IP2Location Tags', 'IP2Location Tags', 8, 'ip2location-tags', array( 'IP2LocationTags', 'admin_options' ) );
 	}
 
 	function activate(){
-		die(header('Location: edit.php?page=ip2location-content'));
+		//die(header('Location: edit.php?page=ip2location-tag'));
 	}
 
-	function start(){
-		add_action('wp', array(&$this, 'getLocation'), 101);
-		add_action('admin_menu', array(&$this, 'admin_page'));
-		add_filter('the_content', array(&$this, 'parse'));
-		add_filter('widget_text', array(&$this, 'parseWidget'));
+	function start() {
+		add_action( 'wp', array( 'IP2LocationTags', 'getLocation' ), 101 );
+		add_action( 'admin_menu', array( 'IP2LocationTags', 'admin_page' ) );
+		add_filter( 'the_content', array( 'IP2LocationTags', 'parse' ) );
+		add_filter( 'widget_text', array( 'IP2LocationTags', 'parse_widget' ) );
 	}
 
-	function _case($s){
-		$s = ucwords(strtolower($s));
-		$s = preg_replace_callback("/( [ a-zA-Z]{1}')([a-zA-Z0-9]{1})/s",create_function('$matches','return $matches[1].strtoupper($matches[2]);'),$s);
+	function set_case( $s ) {
+		$s = ucwords( strtolower( $s ) );
+		$s = preg_replace_callback( "/( [ a-zA-Z]{1}')([a-zA-Z0-9]{1})/s", create_function( '$matches','return $matches[1].strtoupper($matches[2]);' ),$s );
+
 		return $s;
 	}
 }
@@ -559,9 +564,9 @@ function query_ip($ip) {
 }
 
 // Initial class
-$geo = new IP2LocationTag();
-$geo->start();
+$ip2location_tags = new IP2LocationTags();
+$ip2location_tags->start();
 
-// Activate
-register_activation_hook(__FILE__, array(&$cbc, 'activate'));
+register_activation_hook( __FILE__, array( 'IP2LocationTags', 'activate' ) );
+add_action( 'wp_ajax_download_db', 'ip2location_tags_download_db' );
 ?>
