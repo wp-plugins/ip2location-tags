@@ -55,3 +55,4 @@ Please visit us at [http://www.ip2location.com](http://www.ip2location.com/tutor
 		Support bracket [] to define the tag rule in addition to &lt;&lgt;, to solve of issue of being treated as script tag by wordpress.
 * 2.3.0 Fixed crashed with other IP2Location plugins.
 * 2.3.1 Fixed minors issues and WordPress standards.
+* 2.3.2 Fixed compatibilities with widgets.

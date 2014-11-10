@@ -4,7 +4,7 @@
 Plugin Name: IP2Location Tags
 Plugin URI: http://ip2location.com/tutorials/wordpress-ip2location-tag
 Description: Enable you to use IP2Location tags to customize your post content by country.
-Version: 2.3.1
+Version: 2.3.2
 Author: IP2Location
 Author URI: http://www.ip2location.com
 */
@@ -74,7 +74,7 @@ class IP2LocationTags {
 		$content = str_replace( array( '<', '>' ), array( '&lt;', '&gt;' ), $content );
 
 		// Parse widget content
-		$content = $this->parse( $content, true );
+		$content = IP2LocationTags::parse( $content, true );
 
 		// Restore tags and return value
 		return str_replace( array( '&lt;', '&gt;' ), array( '<', '>' ), $content );
