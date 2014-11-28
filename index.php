@@ -137,7 +137,6 @@ class IP2LocationTags {
 			$ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
 		}
 	
-		$ipAddress = '1.9.64.1';
 		$result = IP2LocationTags::get_location( $ipAddress );
 
 		if ( ! $result ) {
