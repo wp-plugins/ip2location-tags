@@ -4,7 +4,7 @@
 Plugin Name: IP2Location Tags
 Plugin URI: http://ip2location.com/tutorials/wordpress-ip2location-tag
 Description: Enable you to use IP2Location tags to customize your post content by country.
-Version: 2.3.2
+Version: 2.3.3
 Author: IP2Location
 Author URI: http://www.ip2location.com
 */
@@ -80,19 +80,73 @@ class IP2LocationTags {
 		return str_replace( array( '&lt;', '&gt;' ), array( '<', '>' ), $content );
 	}
 
+	//115 : converting XX:YY code into region name
+	function code_to_region($countries,$regionCode,$regionName){
+		if($regionName == "This Field Is Not Supported In Db1. Please Upgrade Your Ip2location Database."){
+			for($i = 0 ; $i < count($countries); $i++){
+				if(strlen($countries[$i])>3){
+					if($countries[$i][0] == '-'){
+						$countries[] = substr($countries[$i],0,3);
+						$countries[$i] = '-' . $regionCode[str_replace('-','',$countries[$i])];
+					}
+					else{
+						$countries[] = substr($countries[$i],0,2);
+						$countries[$i] = $regionCode[$countries[$i]];
+					}
+				}
+			}
+		}
+		else{
+			for($i = 0 ; $i < count($countries); $i++){
+				if(strlen($countries[$i])>3){
+					if($countries[$i][0] == '-'){
+						if($regionCode[str_replace('-','',$countries[$i])] == ""){
+							$countries[] = substr($countries[$i],0,3);
+						}
+						$countries[$i] = '-' . $regionCode[str_replace('-','',$countries[$i])];
+					}
+					else{
+						if($regionCode[$countries[$i]]==""){
+							$countries[] = substr($countries[$i],0,2);
+						}
+						$countries[$i] = $regionCode[$countries[$i]];
+					}
+				}
+			}
+		}
+		return $countries;
+	}
+	//115 : Retrieve ISO3166-2 code from the csv file
+	function retrieve_ISO3316(){
+		$handle = fopen(IP2LOCATION_TAGS_ROOT . "IP2LOCATION-ISO3166-2.CSV",'r');
+		$input = fgetcsv($handle,0,"\r\n")!="";
+		while(($input = fgetcsv($handle,0,"\r\n"))!=""){
+			$input = implode("",str_replace("\"","", $input));
+			$input = explode(",",$input);
+			$input[2] = str_replace("-",":",$input[2]);
+			$regionCode[$input[2]] = $input[1];
+			$countryRegion[$input[0]][] = $input[2];
+		}
+		return array($regionCode,$countryRegion);
+	}
+
 	function parse( $content, $widget = false ) {
 		$ipAddress = $_SERVER['REMOTE_ADDR'];
 
 		if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 ) ) {
 			$ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
 		}
-
+	
+		$ipAddress = '1.9.64.1';
 		$result = IP2LocationTags::get_location( $ipAddress );
 
 		if ( ! $result ) {
 			$content;
 		}
-
+		
+		//115 : Retrieve ISO3166-2 code from the csv file
+		$temp = IP2LocationTags::retrieve_ISO3316();
+		$regionCode = $temp[0];
 		$find = array(
 			'{ip:ipAddress}',
 			'{ip:countryCode}',
@@ -159,8 +213,12 @@ class IP2LocationTags {
 
 			$to = '';
 
+			//115 : converting XX:YY code into region name
+			$countries = IP2LocationTags::code_to_region($countries,$regionCode,$result['regionName']);
+		
 			// Show text for listed country
-			if ( in_array( $result['countryCode'], $countries ) ){
+			//115 : added another condition to test for region name
+			if ( in_array( $result['countryCode'], $countries ) || in_array( strtoupper($result['regionName']), $countries ) ){
 				$to = $text;
 			}
 
@@ -170,7 +228,8 @@ class IP2LocationTags {
 			}
 
 			// Hide text for prohibited country
-			if ( in_array( '-' . $result['countryCode'], $countries ) ){
+			//115 : added another condition to test for region name
+			if ( in_array( '-' . $result['countryCode'], $countries ) || in_array( '-' . strtoupper($result['regionName']), $countries ) ){
 				$to = '';
 			}
 
@@ -187,12 +246,17 @@ class IP2LocationTags {
 
 			// Get the whole tag
 			$from2 = '[ip:' . $data2 . ']' . $text2 . '[/ip]';
-
+			
 			$countries2 = explode( ',', str_replace( ' ', '', strtoupper( $data2 ) ) );
-
+			
 			$to2 = '';
+			
+			//115 : converting XX:YY code into region name
+			$countries2 = IP2LocationTags::code_to_region($countries2,$regionCode,$result['regionName']);
+			
 			// Show text for listed country
-			if( in_array( $result['countryCode'], $countries2 ) ){
+			//115 : added another condition to test for region name
+			if( in_array( $result['countryCode'], $countries2)|| in_array( strtoupper($result['regionName']), $countries2 ) ){
 				$to2 = $text2;
 			}
 
@@ -202,7 +266,8 @@ class IP2LocationTags {
 			}
 
 			// Hide text for prohibited country
-			if( in_array( '-' . $result['countryCode'], $countries2 ) ) {
+			//115 : added another condition to test for region name
+			if( in_array( '-' . $result['countryCode'], $countries2 ) || in_array( '-' . strtoupper($result['regionName']), $countries2 ) ) {
 				$to2 = '';
 			}
 
@@ -301,6 +366,19 @@ class IP2LocationTags {
 							});
 						});
 					});
+					//jQuery script for getting region list when click 
+					jQuery(document).ready(function($) {
+						jQuery("#region").click(function(){
+							var country_code = jQuery("#region").val();
+							var data = {
+									\'action\': \'region_list\',
+									\'country_code\' :country_code.toString()
+							};
+							$.post(ajaxurl,data,function(print){
+								jQuery("#regionlist").html(print);
+							});
+						});
+					});
 				</script>
 				<div style="margin-top:10px; padding:10px; border:1px solid #ccc;">
 					<span style="display:block; font-weight:bold; margin-bottom:5px;">Download BIN Database</span>
@@ -389,6 +467,47 @@ class IP2LocationTags {
 
 			<p>&nbsp;</p>
 			';
+
+			//115 : Display list of subdivision code according to country code
+			$temp = IP2LocationTags::retrieve_ISO3316();
+			$countryRegion = $temp[1];
+			echo '<a name="country_region"></a>
+				<div style="border-bottom:1px solid #ccc;">
+					<h3>Subdivision Code List</h3>
+				</div>
+				<p>
+					Select a country code for subdivision code list
+				</p>';
+			if(!file_exists(IP2LOCATION_TAGS_ROOT . "IP2LOCATION-ISO3166-2.CSV")){
+				echo '<p class="red">
+					IP2Location ISO3166-2 CSV file not found. Please download the CSV file at the following link:
+					<a href="http://www.ip2location.com/free/iso3166-2" target="_blank">ISO 3166-2 Subdivision Code</a>.
+					<ol class="red" style="list-style-type:circle;margin-left:30px;">
+							<li>Download the zip file.</li>
+							<li>Decompress the zip file.</li>
+							<li>Upload <b>IP2LOCATION-ISO3166-2.CSV</b> to /wp-content/plugins/ip2location-tags/.</li>
+							<li>Once completed, please refresh the information by reloading the page.</li>
+					</ol>
+				</p>';
+			}
+			echo '
+				<form action="#country_region" method="post">
+					<select id="region" type="text" size="10" style="height:200px;" >
+						<option value="" selected="disabled">Choose a country Code</option>';
+			foreach($countryRegion as $key =>$value){
+				echo '<option value='.$key;
+				echo '>'.$key.'</option>';
+			}
+			echo '</select>
+				<select id="regionlist" size="10" style="height:200px;">
+					<option>Country Subdivision Code List</option>
+				</select>
+				</form>
+				<p>
+					<strong>Example</strong><br/>
+					The subdivision code for California, United States will be US:CA.<br/>
+				</p>
+			';
 			//HJ modified - START//
 			echo '
 				<p>&nbsp;</p>
@@ -440,10 +559,22 @@ You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 				</p>
 				<p>
 					<strong>Example</strong><br/>
-					To show the content for United States and Canada visitors only.<br/>
-					<pre>&#91;ip:US,CA&#93;Only visitors from United States and Canada can view this line.&#91;/ip&#93;</pre>
+					To show the content for United States or Canada visitors only.<br/>
+					<pre>&#91;ip:US,CA&#93;Only visitors from United States or Canada can view this line.&#91;/ip&#93;</pre>
 				</p>
 				<p>&nbsp;</p>
+				<p>
+					<h4>Syntax to show content for specific country and region</h4>
+					<pre>&#91;ip:XX:YY[,XX:YY]..[,XX:YY]&#93;You content here.&#91;/ip&#93;</pre>
+					<div class="red">Note: XX is a two-digit ISO-3166 country code and YY is a ISO-3166-2 sub division code.</div>
+				</p>
+				<p>
+					<strong>Example</strong><br/>
+					To show the content for California or New York visitors only.<br/>
+					<pre>&#91;ip:US:CA,US:NY&#93;Only visitors from California or New York can view this line.&#91;/ip&#93;</pre>
+				</p>
+				<p>&nbsp;</p>
+
 				<p>
 					<h4>Syntax to hide the content from specific country</h4>
 					<pre>&#91;ip:*,-XX[,-XX]..[,-XX]&#93;You content here.&#91;/ip&#93;</pre>
@@ -453,6 +584,19 @@ You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 					<strong>Example</strong><br/>
 					All visitors will be able to see the line except visitors from Vietnam.</br>
 					<pre>&#91;ip:*,-VN&#93;All visitors will be able to see this line except visitors from Vietnam.&#91;/ip&#93;</pre>
+				</p>
+
+				<p>&nbsp;</p>
+
+				<p>
+					<h4>Syntax to hide the content from specific country and region</h4>
+					<pre>&#91;ip:*,-XX:YY[,-XX:YY]..[,-XX:YY]&#93;You content here.&#91;/ip&#93;</pre>
+					<div class="red">Note: XX is a two-digit ISO-3166 country code and YY is a ISO-3166-2 sub division code.</div>
+				</p>
+				<p>
+					<strong>Example</strong><br/>
+					All visitors will be able to see the line except visitors from California.</br>
+					<pre>&#91;ip:*,-US:CA&#93;All visitors will be able to see this line except visitors from California.&#91;/ip&#93;</pre>
 				</p>
 
 				<p>&nbsp;</p>
@@ -563,6 +707,30 @@ function ip2location_tags_download_db() {
 	die;
 }
 
+//115 : function to display list region list.
+function ip2location_tags_region_list() {
+	try{
+		$country_code = $_POST['country_code'];
+		$temp = IP2LocationTags::retrieve_ISO3316();
+		$regionCode = $temp[0];
+		$countryRegion = $temp[1];
+		if($country_code == ""){
+				echo '<option>Country Subdivision Code List</option>';
+		}
+		else{
+			sort($countryRegion[$country_code]);
+			foreach($countryRegion[$country_code] as $value){
+				echo '<option> ' . $value . '&nbsp&nbsp&nbsp=>&nbsp&nbsp&nbsp' . $regionCode[$value]. '</option>';
+			}
+		}
+	}
+	catch(Exception $e){
+		echo 'ERROR';
+	}
+
+	die;
+}
+
 //108 : get_location for ip_query.
 function query_ip($ip) {
 	// Make sure IP2Location database is exist
@@ -589,4 +757,6 @@ register_activation_hook( __FILE__, array( 'IP2LocationTags', 'set_defaults' ) )
 register_uninstall_hook( __FILE__, array( 'IP2LocationTags', 'uninstall' ) );
 
 add_action( 'wp_ajax_download_db', 'ip2location_tags_download_db' );
+//include ip2location_tags_region_list in ajax
+add_action( 'wp_ajax_region_list', 'ip2location_tags_region_list' );
 ?>
