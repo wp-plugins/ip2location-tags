@@ -675,7 +675,7 @@ You are came from {ip:countryName}, {ip:regionName}, {ip:cityName} </pre>
 						'latitude' => $json->latitude,
 						'longitude' => $json->longitude,
 						'isp'=> $json->isp,
-						'domainName' => $json->domain_name,
+						'domainName' => $json->domain,
 						'zipCode' => $json->zip_code,
 						'timeZone' => '-',
 						'netSpeed' => '-',
