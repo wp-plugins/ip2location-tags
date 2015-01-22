@@ -4,7 +4,7 @@ Donate link: http://www.ip2location.com
 Tags: targeted content, geolocation
 Requires at least: 2.0
 Tested up to: 4.1
-Stable tag: 2.3.3
+Stable tag: 2.4.0
 
 Description: Easily get/display the visitor's location information based on IP address and customize the content display for different countries. This plugin uses IP2Location BIN file for location queries, therefore there is no need to set up any relational database to use it.
 
@@ -73,3 +73,4 @@ Please visit us at [http://www.ip2location.com](http://www.ip2location.com/tutor
 * 2.3.1 Fixed minors issues and WordPress standards.
 * 2.3.2 Fixed compatibilities with widgets.
 * 2.3.3 Support the customization of the contents based on region/state.
+* 2.4.0 Fixed various performance issues. Added IP2Location Web service support.
