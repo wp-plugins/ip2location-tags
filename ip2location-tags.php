@@ -3,12 +3,12 @@
 Plugin Name: IP2Location Tags
 Plugin URI: http://ip2location.com/tutorials/wordpress-ip2location-tag
 Description: Enable you to use IP2Location tags to customize your post content by country.
-Version: 2.4.0
+Version: 2.4.1
 Author: IP2Location
 Author URI: http://www.ip2location.com
 */
 
-defined('DS') or define('DS', DIRECTORY_SEPARATOR);
+defined( 'DS' ) or define( 'DS', DIRECTORY_SEPARATOR );
 define( 'IP2LOCATION_TAGS_ROOT', dirname( __FILE__ ) . DS );
 
 class IP2LocationTags {
@@ -334,7 +334,7 @@ class IP2LocationTags {
 							<strong>Note</strong>: If you failed to download the BIN database using this automated downloading tool, please follow the below procedures to manually update the database.
 							<ol style="list-style-type:circle;margin-left:30px">
 								<li>Download the BIN database at <a href="http://www.ip2location.com/?r=wordpress" target="_blank">IP2Location commercial database</a> | <a href="http://lite.ip2location.com/?r=wordpress" target="_blank">IP2Location LITE database (free edition)</a>.</li>
-								<li>Decompress the zip file and update the BIN database to /wp-content/plugins/ip2location-redirection/.</li>
+								<li>Decompress the zip file and update the BIN database to ' . dirname( __FILE__ ) . '.</li>
 								<li>Once completed, please refresh the information by reloading the setting page.</li>
 							</ol>
 						</div>
